@@ -11,14 +11,15 @@ public class VoidEventSO : BaseEventSO
     
     public override void OnSceneUnload(Scene scene)
     {
-        Debug.Log(name + " OnSceneUnload");
         _subscribers.Clear();
+        if(persistThroughSceneChanges) return;
+        HasRaised = false;
     }
 
     public override void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
         base.OnSceneLoad(scene, mode);
-        Debug.Log(name + " OnSceneLoad");
+        
     }
 
     public override void Raise()
