@@ -36,5 +36,6 @@ EditorBuildSettings:
     path: Assets/_Assets/Scenes/Hello 9.unity
     guid: ee53f3520ba14e943b7f2011b1b58ccf
   m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: bc486067bebc1ab4b8c4ad48e56c2419, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

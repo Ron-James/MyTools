@@ -12,10 +12,9 @@ using UnityEngine.SceneManagement;
 [CreateAssetMenu(fileName = "InputEventChannel", menuName = "Event Channel/InputEventChannel")]
 public class InputEventChannel : SerializedScriptableObject, ISceneLoadListener
 {
-    [SerializeReference] private List<BaseInputEvent> _inputEvents = new();
+    [SerializeReference] private List<BaseInput> _inputEvents = new();
 
-    [OdinSerialize]
-    public SceneReference[] Scenes { get; protected set; }
+    [OdinSerialize] public SceneReference[] Scenes { get; protected set; }
 
     private void Reset()
     {
@@ -40,103 +39,99 @@ public class InputEventChannel : SerializedScriptableObject, ISceneLoadListener
             inputEvent.Dispose();
         }
     }
+}
 
-    [Serializable]
-    public class BaseInputEvent
+
+[Serializable]
+public abstract class BaseInput
+{
+    // The found reference to the InputAction (set at runtime).
+    [SerializeField] private InputActionReference _inputAction;
+    //Bool to indicate if it is currently functional
+    [SerializeField, ReadOnly] protected bool isInitialized;
+    
+    public InputAction InputAction => _inputAction;
+    
+
+    /// <summary>
+    /// Call this method at runtime to find and subscribe to the desired input action.
+    /// </summary>
+    public void Setup()
     {
-        [SerializeField] protected BaseEventSO _event;
+        _inputAction.asset.Enable();
+        // Subscribe to events.
+        _inputAction.action.performed += OnPerformed;
+        _inputAction.action.started += OnStarted;
 
-        [SerializeField] protected InputAction _inputAction;
-        
-        public InputAction InputAction => _inputAction;
-        public BaseEventSO Event => _event;
+        // Ensure the action is enabled.
+        _inputAction.action.Enable();
 
-        // Constructors without calling Setup().
-        public BaseInputEvent() { }
-        
-        public BaseInputEvent(InputAction inputAction, BaseEventSO eventSO)
+        isInitialized = true;
+    }
+
+    /// <summary>
+    /// Call this when the input action is no longer needed.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_inputAction != null)
         {
-            _inputAction = inputAction;
-            _event = eventSO;
-        }
-        
-
-
-        [Button]
-        public void Setup()
-        {
-            Debug.LogError("Setup for " + InputAction.name);
-            try{
-                _inputAction.Enable();
-                _inputAction.performed += OnPerformed;
-                _inputAction.started   += OnStarted;
-                
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error in Setup: {e}");
-            }
-        }
-
-        [Button]
-        public void Dispose()
-        {
-            try
-            {
-                if (_inputAction != null)
-                {
-                    _inputAction.performed -= OnPerformed;
-                    _inputAction.started -= OnStarted;
-                    _inputAction.Disable();
-                    
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error in Dispose: {e}");
-            }
-        }
-
-        protected virtual void OnPerformed(InputAction.CallbackContext obj)
-        {
-            Debug.LogError("Performed");
-            _event?.Raise();
-        }
-
-        protected virtual void OnStarted(InputAction.CallbackContext obj)
-        {
-            Debug.LogError("Started");
-            _event?.Raise();
+            _inputAction.action.performed -= OnPerformed;
+            _inputAction.action.started -= OnStarted;
+            _inputAction.action.Disable();
+            isInitialized = false;
         }
     }
 
-    [Serializable]
-    public class InputEvent<T> : BaseInputEvent where T : struct
+    protected abstract void OnPerformed(InputAction.CallbackContext context);
+
+    protected abstract void OnStarted(InputAction.CallbackContext context);
+}
+
+[Serializable]
+public class InputEvent : BaseInput
+{
+    [SerializeField] private BaseEventSO _event;
+
+    protected override void OnPerformed(InputAction.CallbackContext obj)
     {
-        [SerializeField] protected new EventSO<T> _event;
+        Debug.Log("InputEvent OnPerformed " + _event.name);
+        _event.Raise();
+    }
 
-        protected override void OnPerformed(InputAction.CallbackContext obj)
+    protected override void OnStarted(InputAction.CallbackContext obj)
+    {
+        Debug.Log("InputEvent OnStarted " + _event.name);
+        _event.Raise();
+    }
+}
+
+[Serializable]
+public class InputEvent<T> : InputEvent where T : struct
+{
+    [SerializeField] protected new EventSO<T> _event;
+
+    protected override void OnPerformed(InputAction.CallbackContext obj)
+    {
+        if (obj.valueType == typeof(T))
         {
-            if (obj.valueType == typeof(T))
-            {
-                _event.Raise(obj.ReadValue<T>());
-            }
-            else
-            {
-                _event.Raise();
-            }
+            _event.Raise(obj.ReadValue<T>());
         }
-
-        protected override void OnStarted(InputAction.CallbackContext obj)
+        else
         {
-            if (obj.valueType == typeof(T))
-            {
-                _event.Raise(obj.ReadValue<T>());
-            }
-            else
-            {
-                _event.Raise();
-            }
+            _event.Raise();
+        }
+    }
+
+    protected override void OnStarted(InputAction.CallbackContext obj)
+    {
+        if (obj.valueType == typeof(T))
+        {
+            _event.Raise(obj.ReadValue<T>());
+        }
+        else
+        {
+            _event.Raise();
         }
     }
 }

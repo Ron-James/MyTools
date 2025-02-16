@@ -34,6 +34,11 @@ public class SceneLoadManager : SerializedScriptableObject
                 if(!_sceneLoadListeners.Contains(sceneLoadListener)) _sceneLoadListeners.Add(sceneLoadListener);
                 SceneManager.sceneLoaded += sceneLoadListener.OnSceneLoad;
                 SceneManager.sceneUnloaded += sceneLoadListener.OnSceneUnload;
+                #if UNITY_EDITOR
+                //subscirbe to playmode state change
+                EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+                #endif
+                
             }
         }
         
@@ -48,13 +53,30 @@ public class SceneLoadManager : SerializedScriptableObject
         }
         #endif
     }
+    #if UNITY_EDITOR
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.EnteredEditMode)
+        {
+            foreach (var listener in _sceneLoadListeners)
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                listener.OnSceneUnload(currentScene);
+            }
+        }
+    }
     
+    #endif
     private void OnDisable()
     {
         foreach (var sceneLoadListener in _sceneLoadListeners)
         {
             SceneManager.sceneLoaded -= sceneLoadListener.OnSceneLoad;
             SceneManager.sceneUnloaded -= sceneLoadListener.OnSceneUnload;
+            
+            #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            #endif
         }
         
         

@@ -35,5 +35,5 @@ MonoBehaviour:
       Data: 
     - Name: HasRaised
       Entry: 5
-      Data: false
+      Data: true
   persistThroughSceneChanges: 0
