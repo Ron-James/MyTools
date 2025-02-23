@@ -14,66 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultIcon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
   buildScenes:
-  - rid: 6042888796652175679
-  - rid: 6042888796652175680
-  - rid: 6042888796652175681
-  - rid: 6042888796652175682
-  - rid: 6042888796652175683
-  - rid: 6042888796652175684
-  - rid: 6042888796652175685
-  - rid: 6042888796652175686
-  - rid: 6042888796652175687
-  - rid: 6042888796652175688
+  - rid: 6042888946859114566
   references:
     version: 2
     RefIds:
-    - rid: 6042888796652175679
+    - rid: 6042888946859114566
       type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
       data:
         scenePath: Assets/Scenes/SampleScene.unity
         icon: {fileID: 2800000, guid: eaf17e7c9838ec14fa0f65d9331e3672, type: 3}
-    - rid: 6042888796652175680
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello.unity
-        icon: {fileID: 2800000, guid: eaf17e7c9838ec14fa0f65d9331e3672, type: 3}
-    - rid: 6042888796652175681
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 1.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175682
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 2.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175683
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 3.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175684
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 5.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175685
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 6.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175686
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 7.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175687
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 8.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}
-    - rid: 6042888796652175688
-      type: {class: BuildSceneReference, ns: , asm: Assembly-CSharp-Editor}
-      data:
-        scenePath: Assets/_Assets/Scenes/Hello 9.unity
-        icon: {fileID: 2800000, guid: 6c7e1f66c18df5f4f9547686e17021b5, type: 3}

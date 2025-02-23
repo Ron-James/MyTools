@@ -31,6 +31,7 @@ public class InputEventChannel : SerializedScriptableObject, ISceneLoadListener
             }
         }
     }
+    
 
     public void OnSceneUnload(Scene scene)
     {
@@ -38,6 +39,16 @@ public class InputEventChannel : SerializedScriptableObject, ISceneLoadListener
         {
             inputEvent.Dispose();
         }
+    }
+
+    public void OnStopwatchStart(Scene scene)
+    {
+        
+    }
+
+    public void OnStopwatchStop(Scene scene)
+    {
+        
     }
 }
 

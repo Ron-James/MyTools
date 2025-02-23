@@ -1,144 +1,134 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using CustomSceneReference;
+using JetBrains.Annotations;
+using Sirenix.Serialization;
 
 
 public interface ISceneLoadListener
 {
     void OnSceneLoad(Scene scene, LoadSceneMode mode);
     void OnSceneUnload(Scene scene);
-    
+
+    void OnStopwatchStart(Scene scene);
+    void OnStopwatchStop(Scene scene);
 }
+
+
+public interface IRequireInitialization<T> where T : MonoBehaviour
+{
+    void Initialize(T initializer);
+    void Dispose();
+}
+
 [CreateAssetMenu(fileName = "SceneLoadManager", menuName = "SceneLoadManager")]
 public class SceneLoadManager : SerializedScriptableObject
 {
-    [SerializeField] private List<ISceneLoadListener> _sceneLoadListeners = new();
+    [ShowInInspector, ReadOnly] private static List<ISceneLoadListener> _sceneLoadListeners = new();
     [SerializeReference, TableList] private List<SceneReference> _scenes = new();
-    
-    
-    
-    
-    
+
+
+    [SerializeField, ReadOnly] private SceneStopwatch _sceneStopwatch;
+
+
     private void OnEnable()
     {
-        ScriptableObjectManager.LoadAllScriptableObjects();
-        foreach (var so in ScriptableObjectManager.All)
-        {
-            if(so is ISceneLoadListener sceneLoadListener)
-            {
-                if(!_sceneLoadListeners.Contains(sceneLoadListener)) _sceneLoadListeners.Add(sceneLoadListener);
-                SceneManager.sceneLoaded += sceneLoadListener.OnSceneLoad;
-                SceneManager.sceneUnloaded += sceneLoadListener.OnSceneUnload;
-                #if UNITY_EDITOR
-                //subscirbe to playmode state change
-                EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-                #endif
-                
-            }
-        }
-        
-        
-        
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         _scenes.Clear();
         foreach (var scene in EditorBuildSettings.scenes)
         {
             var sceneReference = new SceneReference(scene.path);
             _scenes.Add(sceneReference);
         }
-        #endif
+#endif
     }
-    #if UNITY_EDITOR
-    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void InitSceneLoadListeners()
     {
-        if (state == PlayModeStateChange.EnteredEditMode)
+        Debug.Log(ScriptableObjectManager.All.Length + " scriptable objects found");
+        foreach (var so in ScriptableObjectManager.All)
         {
-            foreach (var listener in _sceneLoadListeners)
+            if(so is ISceneLoadListener listener)
             {
-                Scene currentScene = SceneManager.GetActiveScene();
-                listener.OnSceneUnload(currentScene);
+                _sceneLoadListeners.Add(listener);
             }
         }
+        SceneStopwatch.OnStart += OnSceneStopWatchStart;
+        SceneStopwatch.OnStop += OnSceneStopWatchStop;
+        SceneManager.sceneLoaded += OnSceneLoad;
+        SceneManager.sceneUnloaded += OnSceneUnload;
     }
     
-    #endif
+    
     private void OnDisable()
     {
-        foreach (var sceneLoadListener in _sceneLoadListeners)
-        {
-            SceneManager.sceneLoaded -= sceneLoadListener.OnSceneLoad;
-            SceneManager.sceneUnloaded -= sceneLoadListener.OnSceneUnload;
-            
-            #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            #endif
-        }
         
-        
+        SceneManager.sceneLoaded -= OnSceneLoad;
+        SceneManager.sceneUnloaded -= OnSceneUnload;
+        SceneStopwatch.OnStart -= OnSceneStopWatchStart;
+        SceneStopwatch.OnStop -= OnSceneStopWatchStop;
+
+
         _sceneLoadListeners.Clear();
         ScriptableObjectManager.Clear();
-        
-        #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         _scenes.Clear();
-        #endif
+#endif
     }
-}
 
 
-public static class ScriptableObjectManager
-{
-    private static Dictionary<string, ScriptableObject> _scriptableObjects = new Dictionary<string, ScriptableObject>();
-    
-    
-    
-    public static T[] LoadScriptableObject<T>(string path = "") where T : ScriptableObject
+    static void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
-        var scriptableObjects = Resources.LoadAll<T>(path);
-        return scriptableObjects;
-    }
-    
-    
-    public static ScriptableObject[] All => _scriptableObjects.Values.ToArray();
-    public static void Clear()
-    {
-        _scriptableObjects.Clear();
-    }
-    public static void AddScriptableObject(string key, ScriptableObject scriptableObject)
-    {
-        if (_scriptableObjects.ContainsKey(key))
+        Debug.Log("Scene loaded from scene manager: " + scene.name);
+        foreach (var listener in _sceneLoadListeners)
         {
-            _scriptableObjects[key] = scriptableObject;
-        }
-        else
-        {
-            _scriptableObjects.Add(key, scriptableObject);
+            listener.OnSceneLoad(scene, mode);
         }
     }
-    
-    public static T GetScriptableObject<T>(string key) where T : ScriptableObject
+
+    static void OnSceneUnload(Scene scene)
     {
-        if (_scriptableObjects.ContainsKey(key))
+        Debug.Log("Scene unloaded from scene manager: " + scene.name);
+        foreach (var listener in _sceneLoadListeners)
         {
-            return _scriptableObjects[key] as T;
-        }
-        else
-        {
-            return null;
+            listener.OnSceneUnload(scene);
         }
     }
-    
-    public static void LoadAllScriptableObjects()
+
+
+    static void OnSceneStopWatchStart()
     {
-        var scriptableObjects = Resources.LoadAll<ScriptableObject>("");
-        foreach (var scriptableObject in scriptableObjects)
+        Scene activeScene = SceneManager.GetActiveScene();
+        Debug.Log("Stopwatch started from scene manager, calling on " + _sceneLoadListeners.Count + " listeners");
+        foreach (var listener in _sceneLoadListeners)
         {
-            AddScriptableObject(scriptableObject.name, scriptableObject);
+            listener.OnStopwatchStart(activeScene);
         }
+        
     }
+
+
+    static void OnSceneStopWatchStop()
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        Debug.Log("Stopwatch stopped from scene manager");
+        foreach (var listener in _sceneLoadListeners)
+        {
+            listener.OnStopwatchStop(activeScene);
+        }
+        _sceneLoadListeners.Clear();
+    }
+
+    
+
+
+    
+
     
 }

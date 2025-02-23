@@ -15,8 +15,7 @@ MonoBehaviour:
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 11400000, guid: 8679681264490044db460c833ec254c6, type: 2}
+    ReferencedUnityObjects: []
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -28,9 +27,6 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 10
       Data: 0
     - Name: 
       Entry: 13
@@ -38,3 +34,58 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  _scenes:
+  - rid: 6042888909442253129
+  - rid: 6042888909442253130
+  - rid: 6042888909442253131
+  - rid: 6042888909442253132
+  - rid: 6042888909442253133
+  - rid: 6042888909442253134
+  - rid: 6042888909442253135
+  - rid: 6042888909442253136
+  - rid: 6042888909442253137
+  - rid: 6042888909442253138
+  _sceneStopwatch: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 6042888909442253129
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/Scenes/SampleScene.unity
+    - rid: 6042888909442253130
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello.unity
+    - rid: 6042888909442253131
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 1.unity
+    - rid: 6042888909442253132
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 2.unity
+    - rid: 6042888909442253133
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 3.unity
+    - rid: 6042888909442253134
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 5.unity
+    - rid: 6042888909442253135
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 6.unity
+    - rid: 6042888909442253136
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 7.unity
+    - rid: 6042888909442253137
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 8.unity
+    - rid: 6042888909442253138
+      type: {class: SceneReference, ns: CustomSceneReference, asm: Assembly-CSharp}
+      data:
+        scenePath: Assets/_Assets/Scenes/Hello 9.unity

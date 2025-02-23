@@ -47,24 +47,25 @@ public class SceneEditorPanel : OdinEditorWindow
     [SerializeField, HideIf("hasDatabase")]
     private SceneIconDatabase sceneDatabase; // Assign in Inspector or via code
 
-    private Vector2 scrollPos;
+    private Vector2 scrollPosition;
     private List<SceneButton> scenes;
     private bool hasDatabase => sceneDatabase != null;
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
         // If no database is assigned, you might attempt to auto-locate one:
         // if (!sceneDatabase)
         // {
         //     sceneDatabase = AssetDatabase.LoadAssetAtPath<SceneIconDatabase>("Assets/SceneIconDatabase.asset");
         // }
-
+        base.OnEnable();
         RefreshSceneList();
         EditorBuildSettings.sceneListChanged += RefreshSceneList;
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         EditorBuildSettings.sceneListChanged -= RefreshSceneList;
     }
     [Button]
@@ -106,7 +107,7 @@ public class SceneEditorPanel : OdinEditorWindow
         GUILayout.Label("Scenes", EditorStyles.boldLabel);
         
 
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
         // DYNAMIC LAYOUT
         float panelWidth = EditorGUIUtility.currentViewWidth - 30f;

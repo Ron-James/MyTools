@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 public interface IEvent
 {
@@ -87,7 +88,17 @@ public abstract class BaseEventSO : SerializedScriptableObject, IEvent, ISceneLo
     [SerializeReference] protected List<BaseEventSubscriber> _subscribers = new List<BaseEventSubscriber>();
     [SerializeField] protected bool persistThroughSceneChanges = false;
     public abstract void OnSceneUnload(Scene scene);
-    
+    public void OnStopwatchStart(Scene scene)
+    {
+        Debug.Log("Stopwatch started" + name);
+    }
+
+    public void OnStopwatchStop(Scene scene)
+    {
+        Debug.Log("Stopwatch stopped" + name);
+        _subscribers.Clear();
+    }
+
     [OdinSerialize]
     public SceneReference[] Scenes { get; protected set; }
 

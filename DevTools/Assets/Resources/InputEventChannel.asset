@@ -50,6 +50,6 @@ MonoBehaviour:
     - rid: 6042888796152791171
       type: {class: InputEvent, ns: , asm: Assembly-CSharp}
       data:
-        _inputAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+        _inputAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
         isInitialized: 0
         _event: {fileID: 11400000, guid: 8679681264490044db460c833ec254c6, type: 2}
