@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Editor.ScriptableObjectExplorer;
 using UnityEngine;
 using UnityEditor;
 using Sirenix.OdinInspector;
@@ -204,6 +205,9 @@ namespace ScriptsbleObjectExplorer
             {
                 SelectFilePath();
             }
+            
+            
+            
 
             void SelectFilePath()
             {
@@ -267,20 +271,25 @@ namespace ScriptsbleObjectExplorer
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("Navigation", EditorStyles.boldLabel);
 
-                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginVertical();
                 // Ping Button
                 if (GUILayout.Button("Ping", GUILayout.Width(200)))
                 {
                     EditorGUIUtility.PingObject(selectedSO);
                 }
+                
+                if(GUILayout.Button("Open as Panel", GUILayout.Width(200)))
+                {
+                    ScriptableObjectPanel.OpenPanelForScriptableObject(selectedSO);
+                }
 
                 // Open in Inspector Button
-                if (GUILayout.Button("Open in Inspector", GUILayout.Width(250)))
+                if (GUILayout.Button("Open in Inspector", GUILayout.Width(200)))
                 {
                     Selection.activeObject = selectedSO;
                 }
 
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
             }
         }
 
@@ -520,6 +529,9 @@ namespace ScriptsbleObjectExplorer
                     Selection.activeObject = so;
                 }
             }
+            
+            
+            
 
             [HorizontalGroup("$FoldoutTitle/Buttons")]
             [Button(ButtonSizes.Medium), GUIColor(0.7f, 0.9f, 1f)]
@@ -530,6 +542,7 @@ namespace ScriptsbleObjectExplorer
                     Selection.activeObject = so;
                 }
             }
+            
 
             private List<SOFieldData> CollectSerializedFields(ScriptableObject so)
             {
