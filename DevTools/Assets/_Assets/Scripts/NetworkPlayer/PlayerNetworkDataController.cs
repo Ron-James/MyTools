@@ -1,5 +1,4 @@
 using Unity.Netcode;
-using UnityEngine;
 
 
 public class PlayerNetworkDataController : NetworkBehaviour
@@ -18,14 +17,6 @@ public class PlayerNetworkDataController : NetworkBehaviour
     }
 }
 
-public class VariableReference<T>
-{
-    [SerializeField] protected EventSO<T> _event;
-    [SerializeField] protected T _value;
-    
-    public EventSO<T> Event => _event;
-    
-}
 public class NetworkedVariableReference <T> : VariableReference<T>
 {
     

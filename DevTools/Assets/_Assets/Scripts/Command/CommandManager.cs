@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static System.Activator;
@@ -14,110 +15,124 @@ public interface ICommand
 {
     Task Execute();
     public bool IsExecuting { get; }
-    public bool RemoveAfterExecute { get; }
+    
 }
 
 [ShowOdinSerializedPropertiesInInspector]
 [Serializable]
 public abstract class BaseCommand : ICommand
 {
+    [SerializeField, ReadOnly] protected string Name;
     [SerializeField, ReadOnly] protected bool isExecuting;
-    [SerializeField] protected bool removeAfterExecute;
     public abstract Task Execute();
-
+    
+    
+    public BaseCommand()
+    {
+        Name = GetType().Name;
+    }
+    
+    public BaseCommand(string name)
+    {
+        Name = name;
+    }
     public bool IsExecuting
     {
         get => isExecuting;
         protected set => value = IsExecuting;
     }
-
-    public bool RemoveAfterExecute => removeAfterExecute;
+    
 }
 
-[ShowOdinSerializedPropertiesInInspector]
 [Serializable]
-public class MoveCommand : BaseCommand
+public class AsyncCommand : BaseCommand
 {
-    private Vector3 _direction;
-    private Transform _transform;
-    private float _speed;
-    [SerializeField] private float duration = 0;
+    private Func<Task> _action;
 
-    public MoveCommand(Transform transform, Vector3 direction, float speed)
+    public AsyncCommand(Func<Task> action)
     {
-        _transform = transform;
-        _direction = direction;
-        _speed = speed;
+        _action = action;
     }
-
-    public MoveCommand()
+    
+    public AsyncCommand(string name, Func<Task> action) : base(name)
     {
-        
+        _action = action;
     }
 
     public override async Task Execute()
     {
         IsExecuting = true;
-        _transform.position += _direction * _speed * Time.deltaTime;
-        await Awaitable.WaitForSecondsAsync(duration);
+        await _action();
         IsExecuting = false;
     }
 }
 
 
-public class CommandManager : SerializedMonoBehaviour
+[ExecuteAlways]
+public class CommandManager : PersistentMonoBehaviour<CommandManager>
 {
-    [SerializeReference, TableList] Dictionary<UnityEngine.Object, ICommand> _commands = new();
+    private static List<ICommand> ongoingCommands = new();
+    private static CommandInvoker _invoker = new CommandInvoker();
+    
+    [ShowInInspector]
+    public List<ICommand> onGoingCommands => ongoingCommands;
 
-
-    private CommandInvoker _invoker = new CommandInvoker();
-
-    private void Awake()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void Init()
+    {
+        Initialize();
+    }
+    private void OnEnable()
     {
         _invoker = new CommandInvoker();
+        _invoker.OnCommandExecuted += OnCommandExecuted;
+    }
+    
+    private void OnDisable()
+    {
+        _invoker.OnCommandExecuted -= OnCommandExecuted;
+        _invoker = null;
+    }
+    
+    
+    private void OnCommandExecuted(ICommand command)
+    {
+        if(ongoingCommands.Contains(command))
+            ongoingCommands.Remove(command);
     }
 
-    public async Task ExecuteCommands()
-    {
-        await _invoker.InvokeSequentially(_commands.Values.ToList());
-    }
 
-    public async Task ExecuteCommandsSimultaneously()
+    public static async void ExecuteSimultaneously(List<ICommand> commands)
     {
-        await _invoker.InvokeSimultaneously(_commands.Values.ToList());
-    }
-
-    public async Task ExecuteObjectCommandsSequentially(UnityEngine.Object obj)
-    {
-        List<ICommand> objectCommands = _commands.Where(x => x.Key == obj).Select(x => x.Value).ToList();
-        await _invoker.InvokeSequentially(objectCommands);
-    }
-
-    public async Task ExecuteObjectCommandsSimultaneously(UnityEngine.Object obj)
-    {
-        List<ICommand> objectCommands = _commands.Where(x => x.Key == obj).Select(x => x.Value).ToList();
-        await _invoker.InvokeSimultaneously(objectCommands);
-    }
-
-    public async Task ExecuteSimultaneously(List<ICommand> commands)
-    {
+        ongoingCommands.AddRange(commands);
         await _invoker.InvokeSimultaneously(commands);
     }
 
 
-    public async Task ExecuteSingle(ICommand command)
+    public static async void ExecuteCommand(ICommand command)
     {
+        ongoingCommands.Add(command);
         await _invoker.ExecuteCommand(command);
+        
+    }
+    
+    public static void EnsureCommandManagerExists()
+    {
+        
     }
 
     [Serializable]
     private class CommandInvoker
     {
+        public event Action<ICommand> OnCommandStarted;
+        public event Action<ICommand> OnCommandExecuted;
         public async Task ExecuteCommand(ICommand command)
         {
             try
             {
+                OnCommandStarted?.Invoke(command);
                 await command.Execute();
+                OnCommandExecuted?.Invoke(command);
             }
             catch (OperationCanceledException e)
             {
@@ -142,11 +157,8 @@ public class CommandManager : SerializedMonoBehaviour
         {
             for (int i = 0; i < commands.Count; i++)
             {
-                await commands[i].Execute();
-                if (commands[i].RemoveAfterExecute)
-                {
-                    commands.RemoveAt(i);
-                }
+                await ExecuteCommand(commands[i]);
+                
             }
         }
 
@@ -156,11 +168,7 @@ public class CommandManager : SerializedMonoBehaviour
             {
                 try
                 {
-                    await commands[i].Execute();
-                    if (commands[i].RemoveAfterExecute)
-                    {
-                        commands.RemoveAt(i);
-                    }
+                    await ExecuteCommand(commands[i]);
                 }
                 catch (OperationCanceledException e)
                 {
